@@ -117,24 +117,47 @@
       <button type="submit">登录</button>
     </form>
     <p class="message" id="message"></p>
-    <p class="hint">演示账号：admin / 123456</p>
+    <p class="hint">请使用由服务端签发的有效账号进行登录。</p>
   </main>
 
   <script>
     const loginForm = document.getElementById('loginForm');
     const message = document.getElementById('message');
 
-    loginForm.addEventListener('submit', (event) => {
+    loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const username = loginForm.username.value.trim();
       const password = loginForm.password.value;
 
-      if (username === 'admin' && password === '123456') {
-        message.textContent = '登录成功，欢迎你！';
-        message.className = 'message success';
-      } else {
+      message.textContent = '正在登录...';
+      message.className = 'message';
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (!response.ok) {
+          throw new Error('登录请求失败');
+        }
+
+        const result = await response.json();
+
+        if (result?.authenticated === true) {
+          message.textContent = '登录成功，欢迎你！';
+          message.className = 'message success';
+          return;
+        }
+
         message.textContent = '账号或密码错误，请重试。';
+        message.className = 'message error';
+      } catch (error) {
+        message.textContent = '暂时无法完成登录，请稍后重试。';
         message.className = 'message error';
       }
     });
