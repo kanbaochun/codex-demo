@@ -3,141 +3,368 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>登录界面</title>
+  <title>PageIndex 文件浏览器</title>
   <style>
     :root {
       color-scheme: light;
       font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      --brand: #1f3c88;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --line: #d8deea;
+      --muted: #687085;
+      --danger: #c1121f;
+      --success: #137547;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #1f3c88, #39a2db);
+      background: var(--bg);
+      color: #1c2230;
     }
 
-    .login-card {
-      width: min(360px, 90vw);
-      padding: 32px 28px;
-      border-radius: 16px;
-      background: #fff;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 18px rgba(40, 52, 77, 0.06);
     }
 
     h1 {
-      margin: 0 0 24px;
-      text-align: center;
+      margin: 0;
       font-size: 24px;
-      color: #1f3c88;
+      color: var(--brand);
     }
 
-    .field {
-      margin-bottom: 16px;
+    .sub { margin: 8px 0 0; color: var(--muted); }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      align-items: end;
     }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-size: 14px;
-    }
+    label { display: block; margin-bottom: 6px; font-size: 13px; color: #30384b; }
 
-    input {
+    input, select, button {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #cdd5df;
       border-radius: 10px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
       font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus {
-      border-color: #1f3c88;
+      background: #fff;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: #1f3c88;
+      background: var(--brand);
       color: #fff;
-      font-size: 15px;
+      border: none;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
-    button:hover {
-      background: #162d68;
+    button:hover { filter: brightness(0.93); }
+
+    .status { margin-top: 10px; font-size: 14px; min-height: 20px; }
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
     }
 
-    .hint {
-      margin-top: 14px;
-      text-align: center;
-      color: #777;
+    .list-wrap { display: grid; gap: 16px; }
+
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 240px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .list li {
+      padding: 10px 12px;
+      border-bottom: 1px solid #edf0f6;
+      cursor: pointer;
+      word-break: break-all;
+    }
+
+    .list li:last-child { border-bottom: none; }
+    .list li:hover { background: #f4f8ff; }
+    .list li.active { background: #dbe8ff; color: #0d2f78; }
+
+    .viewer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .json-viewer {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 260px;
+      max-height: 360px;
+      overflow: auto;
+      background: #fdfefe;
+    }
+
+    .json-viewer pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "SFMono-Regular", Consolas, monospace;
       font-size: 12px;
+      line-height: 1.45;
     }
 
-    .message {
-      margin-top: 12px;
-      min-height: 20px;
-      text-align: center;
-      font-size: 14px;
+    iframe {
+      width: 100%;
+      min-height: 560px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
     }
 
-    .message.error {
-      color: #d90429;
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
-    .message.success {
-      color: #2b9348;
+    .toolbar button {
+      width: auto;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .content-grid { grid-template-columns: 1fr; }
+      iframe { min-height: 420px; }
     }
   </style>
 </head>
 <body>
-  <main class="login-card">
-    <h1>用户登录</h1>
-    <form id="loginForm">
-      <div class="field">
-        <label for="username">账号</label>
-        <input id="username" name="username" type="text" autocomplete="username" required />
+  <div class="page">
+    <section class="card">
+      <h1>PageIndex 结果展示与 PDF 预览</h1>
+      <p class="sub">展示 <code>results/</code> 下 JSON，展示并预览 <code>pdf_path/</code> 下 PDF，同时支持文件上传。</p>
+    </section>
+
+    <section class="card">
+      <div class="upload-grid">
+        <div>
+          <label for="uploadKind">上传目标</label>
+          <select id="uploadKind">
+            <option value="json">results/ (JSON)</option>
+            <option value="pdf">pdf_path/ (PDF)</option>
+          </select>
+        </div>
+        <div>
+          <label for="uploadFile">选择文件</label>
+          <input id="uploadFile" type="file" />
+        </div>
+        <div>
+          <button id="uploadBtn" type="button">上传文件</button>
+        </div>
       </div>
-      <div class="field">
-        <label for="password">密码</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required />
-      </div>
-      <button type="submit">登录</button>
-    </form>
-    <p class="message" id="message"></p>
-    <p class="hint">演示账号：admin / 123456</p>
-  </main>
+      <div id="uploadStatus" class="status"></div>
+    </section>
+
+    <section class="content-grid">
+      <aside class="list-wrap">
+        <div class="card">
+          <div class="toolbar">
+            <strong>JSON 文件列表</strong>
+            <button id="refreshJson" type="button">刷新</button>
+          </div>
+          <ul id="jsonList" class="list"></ul>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <strong>PDF 文件列表</strong>
+            <button id="refreshPdf" type="button">刷新</button>
+          </div>
+          <ul id="pdfList" class="list"></ul>
+        </div>
+      </aside>
+
+      <main class="viewer-grid">
+        <section class="card">
+          <div class="toolbar">
+            <strong>JSON 内容预览</strong>
+            <span id="jsonName" class="sub"></span>
+          </div>
+          <div id="jsonViewer" class="json-viewer"><pre>请从左侧选择一个 JSON 文件。</pre></div>
+        </section>
+
+        <section class="card">
+          <div class="toolbar">
+            <strong>PDF 预览</strong>
+            <span id="pdfName" class="sub"></span>
+          </div>
+          <iframe id="pdfFrame" title="PDF 预览"></iframe>
+        </section>
+      </main>
+    </section>
+  </div>
 
   <script>
-    const loginForm = document.getElementById('loginForm');
-    const message = document.getElementById('message');
+    const jsonList = document.getElementById('jsonList');
+    const pdfList = document.getElementById('pdfList');
+    const jsonViewer = document.getElementById('jsonViewer');
+    const jsonName = document.getElementById('jsonName');
+    const pdfName = document.getElementById('pdfName');
+    const pdfFrame = document.getElementById('pdfFrame');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadKind = document.getElementById('uploadKind');
+    const uploadFile = document.getElementById('uploadFile');
+    const uploadStatus = document.getElementById('uploadStatus');
 
-    loginForm.addEventListener('submit', (event) => {
-      event.preventDefault();
+    document.getElementById('refreshJson').addEventListener('click', loadJsonList);
+    document.getElementById('refreshPdf').addEventListener('click', loadPdfList);
+    uploadBtn.addEventListener('click', upload);
 
-      const username = loginForm.username.value.trim();
-      const password = loginForm.password.value;
-
-      if (username === 'admin' && password === '123456') {
-        message.textContent = '登录成功，欢迎你！';
-        message.className = 'message success';
-      } else {
-        message.textContent = '账号或密码错误，请重试。';
-        message.className = 'message error';
+    async function fetchList(type) {
+      const res = await fetch(`/api/files?type=${encodeURIComponent(type)}`);
+      if (!res.ok) {
+        throw new Error(`${type} 列表获取失败: ${res.status}`);
       }
-    });
+      return res.json();
+    }
+
+    function setStatus(message, isError = false) {
+      uploadStatus.textContent = message;
+      uploadStatus.className = `status ${isError ? 'error' : 'success'}`;
+    }
+
+    function renderList(container, files, onClick) {
+      container.innerHTML = '';
+      if (!files.length) {
+        const li = document.createElement('li');
+        li.textContent = '暂无文件';
+        li.style.color = '#687085';
+        li.style.cursor = 'default';
+        container.appendChild(li);
+        return;
+      }
+
+      files.forEach((name) => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        li.addEventListener('click', () => {
+          [...container.children].forEach((x) => x.classList.remove('active'));
+          li.classList.add('active');
+          onClick(name);
+        });
+        container.appendChild(li);
+      });
+    }
+
+    async function loadJsonList() {
+      try {
+        const data = await fetchList('json');
+        renderList(jsonList, data.files || [], previewJson);
+      } catch (err) {
+        jsonList.innerHTML = `<li style="color:#c1121f;cursor:default">${err.message}</li>`;
+      }
+    }
+
+    async function loadPdfList() {
+      try {
+        const data = await fetchList('pdf');
+        renderList(pdfList, data.files || [], previewPdf);
+      } catch (err) {
+        pdfList.innerHTML = `<li style="color:#c1121f;cursor:default">${err.message}</li>`;
+      }
+    }
+
+    async function previewJson(name) {
+      const res = await fetch(`/api/json/${encodeURIComponent(name)}`);
+      if (!res.ok) {
+        jsonViewer.innerHTML = `<pre>读取失败: ${res.status}</pre>`;
+        return;
+      }
+      const data = await res.json();
+      jsonName.textContent = name;
+      jsonViewer.innerHTML = `<pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
+    }
+
+    function previewPdf(name) {
+      pdfName.textContent = name;
+      pdfFrame.src = `/api/pdf/${encodeURIComponent(name)}`;
+    }
+
+    async function upload() {
+      const file = uploadFile.files[0];
+      const kind = uploadKind.value;
+
+      if (!file) {
+        setStatus('请先选择文件。', true);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('kind', kind);
+      formData.append('file', file);
+
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = '上传中...';
+      setStatus('');
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : {};
+
+        if (!res.ok) {
+          throw new Error(data?.message || `上传失败: ${res.status}`);
+        }
+
+        setStatus(`上传成功：${data.filename} → ${data.saved_to}`);
+        uploadFile.value = '';
+        await Promise.all([loadJsonList(), loadPdfList()]);
+      } catch (err) {
+        setStatus(err.message || '上传失败', true);
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '上传文件';
+      }
+    }
+
+    function escapeHtml(input) {
+      return input
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    loadJsonList();
+    loadPdfList();
   </script>
 </body>
 </html>
